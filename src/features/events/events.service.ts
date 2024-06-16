@@ -1,26 +1,46 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { Event, EventStatus } from '../events/entities/event.entity';
 
 @Injectable()
 export class EventsService {
-  create(createEventDto: CreateEventDto) {
-    return 'This action adds a new event';
+  constructor(
+    @InjectModel(Event.name) private readonly eventModel: Model<Event>,
+  ) {}
+
+  async create(createEventDto: CreateEventDto): Promise<Event> {
+    const createdEvent = new this.eventModel(createEventDto);
+    const savedEvent = await createdEvent.save();
+    return savedEvent;
   }
 
-  findAll() {
-    return `This action returns all events`;
+  async findAll(): Promise<Event[]> {
+    return await this.eventModel.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
+  async findOne(id: string): Promise<Event | null> {
+    return await this.eventModel.findById(id);
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async update(
+    id: string,
+    updateEventDto: UpdateEventDto,
+  ): Promise<Event | null> {
+    // Automatically update status to 'overdue' if expectedDate has passed
+    const eventToUpdate = await this.eventModel.findById(id);
+    if (eventToUpdate && eventToUpdate.expectedDate < new Date()) {
+      updateEventDto.status = EventStatus.OVERDUE;
+    }
+    return await this.eventModel.findByIdAndUpdate(id, updateEventDto, {
+      new: true,
+    }); // Return updated document
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async remove(id: string): Promise<any> {
+    // Update to Promise<void> if desired
+    return await this.eventModel.findByIdAndDelete(id);
   }
 }
