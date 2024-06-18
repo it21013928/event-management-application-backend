@@ -9,12 +9,17 @@ export enum EventStatus {
 
 @Schema()
 export class Event extends Document {
-    
+  @Prop({ default: null })
+  userId: string;
+
   @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
   expectedDate: Date;
+
+  @Prop({ default: new Date() })
+  createdDate: Date;
 
   @Prop({ default: EventStatus.PENDING })
   status: EventStatus;
