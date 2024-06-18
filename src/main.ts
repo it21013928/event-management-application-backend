@@ -5,7 +5,7 @@ import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -17,7 +17,7 @@ async function bootstrap() {
   app.enableCors();
   app.use(helmet());
 
-  await app.listen(5000);
+  await app.listen(5001);
 
   Logger.log(`Application is running on: ${await app.getUrl()}`);
 }

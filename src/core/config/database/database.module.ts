@@ -9,7 +9,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
-        const connectionString = config.get<string>('DATABASE_CONNECTION_STRING');
+        const connectionString = config.get<string>(
+          'DATABASE_CONNECTION_STRING',
+        );
         return {
           uri: connectionString,
         };
