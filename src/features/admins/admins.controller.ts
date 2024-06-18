@@ -22,10 +22,10 @@ export class AdminsController {
     return this.adminsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminsService.update(id, updateAdminDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
+  //   return this.adminsService.update(id, updateAdminDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

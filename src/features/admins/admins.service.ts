@@ -28,15 +28,15 @@ export class AdminsService {
     return await this.adminModel.findById(id).select('-password');
   }
 
-  async update(id: string, updateAdminDto: UpdateAdminDto): Promise<Admin | null> {
-    if (updateAdminDto.password) {
-      const salt = await bcrypt.genSalt(10);
-      updateAdminDto.password = await bcrypt.hash(updateAdminDto.password, salt);
-    }
-    return await this.adminModel
-      .findByIdAndUpdate(id, updateAdminDto, { new: true })
-      .select('-password');
-  }
+  // async update(id: string, updateAdminDto: UpdateAdminDto): Promise<Admin | null> {
+  //   if (updateAdminDto.password) {
+  //     const salt = await bcrypt.genSalt(10);
+  //     updateAdminDto.password = await bcrypt.hash(updateAdminDto.password, salt);
+  //   }
+  //   return await this.adminModel
+  //     .findByIdAndUpdate(id, updateAdminDto, { new: true })
+  //     .select('-password');
+  // }
 
   async remove(id: string): Promise<any> {
     return await this.adminModel.findByIdAndDelete(id);
