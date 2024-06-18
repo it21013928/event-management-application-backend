@@ -1,4 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateEventDto } from './create-event.dto';
+import { Types } from 'mongoose';
+import { EventStatus } from '../entities/event.entity';
 
-export class UpdateEventDto extends PartialType(CreateEventDto) {}
+export class UpdateEventDto extends PartialType(Event) {
+  readonly userId?: Types.ObjectId;
+  readonly status?: EventStatus;
+}

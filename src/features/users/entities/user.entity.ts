@@ -13,6 +13,9 @@ export class User extends Document {
   @Prop({ required: true, select: false })
   password: string;
 
+  @Prop({ default: true })
+  isActive: boolean;
+
   async validatePassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
   }
@@ -20,7 +23,6 @@ export class User extends Document {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Pre-save hook to hash password
 UserSchema.pre<User>('save', async function (next) {
   if (this.isModified('password') || this.isNew) {
     const salt = await bcrypt.genSalt(10);
@@ -29,7 +31,6 @@ UserSchema.pre<User>('save', async function (next) {
   next();
 });
 
-// Add method to schema
 UserSchema.methods.validatePassword = async function (
   password: string,
 ): Promise<boolean> {

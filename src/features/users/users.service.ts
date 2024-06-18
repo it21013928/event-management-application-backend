@@ -1,13 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import * as bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
@@ -20,21 +19,25 @@ export class UsersService {
     return userObj as User;
   }
 
+  async findByUsername(username: string): Promise<User | undefined> {
+    return this.userModel.findOne({ username }).select('+password');
+  }
+
   async findAll(): Promise<User[]> {
-    return await this.userModel.find().select('-password');
+    this.logger.log('Fetching all users');
+    const users = await this.userModel.find().select('-password').exec();
+    this.logger.log(`Found ${users.length} users`);
+    return users;
   }
 
   async findOne(id: string): Promise<User | null> {
     return await this.userModel.findById(id).select('-password');
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
-    if (updateUserDto.password) {
-      const salt = await bcrypt.genSalt(10);
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt);
-    }
+  async deactivate(id: string): Promise<User | null> {
+    const user = await this.userModel.findById(id).select('-password');
     return await this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .findByIdAndUpdate(id, { isActive: !user.isActive })
       .select('-password');
   }
 
@@ -43,10 +46,7 @@ export class UsersService {
   }
 
   async userLogin(username: string, password: string): Promise<User | null> {
-    const user = await this.userModel
-      .findOne({ username })
-      .select('+password');
-
+    const user = await this.userModel.findOne({ username }).select('+password');
     if (!user) {
       return null;
     }
